@@ -280,6 +280,12 @@ void ImpressionistUI::cb_sizeSlides(Fl_Widget* o, void* v)
 	((ImpressionistUI*)(o->user_data()))->m_nSize=int( ((Fl_Slider *)o)->value() ) ;
 }
 
+void ImpressionistUI::cb_MyValueSlides(Fl_Widget* o, void* v)
+{
+	((ImpressionistUI*)(o->user_data()))->m_nMyValue = int(((Fl_Slider*)o)->value());
+}
+
+
 //---------------------------------- per instance functions --------------------------------------
 
 //------------------------------------------------

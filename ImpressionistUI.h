@@ -76,6 +76,7 @@ private:
 	static void	cb_clear_canvas_button(Fl_Widget* o, void* v);
 	static void	cb_sizeSlides(Fl_Widget* o, void* v);
 
+	static void cb_MyValueSlides(Fl_Widget* o, void* v)
 };
 
 #endif
