@@ -151,6 +151,7 @@
     <ClCompile Include="PointBrush.cpp" />
     <ClCompile Include="ScatteredCircleBrush.cpp" />
     <ClCompile Include="ScatteredCircleBrush.h" />
+    <ClCompile Include="ScatteredLineBrush.cpp" />
     <ClCompile Include="ScatteredLineBrush.h" />
     <ClCompile Include="ScatteredPointBrush.cpp" />
   </ItemGroup>
