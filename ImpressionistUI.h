@@ -36,8 +36,11 @@ public:
 // for brush dialog
 	Fl_Window*			m_brushDialog;
 	Fl_Choice*			m_BrushTypeChoice;
+	Fl_Choice*			m_DirectionTypeChoice;
 
 	Fl_Slider*			m_BrushSizeSlider;
+	Fl_Slider*			m_LineWidthSlider;
+	Fl_Slider*			m_LineAngleSlider;
 	Fl_Button*          m_ClearCanvasButton;
 
 	// Member functions
@@ -51,21 +54,27 @@ public:
 
 	int					getSize();
 	void				setSize(int size);
+	int					getLineWidth();
+	void				setLineWidth(int lineWidth);
+	int					getLineAngle();
+	void				setLineAngle(int lineAngle);
 
 private:
 	ImpressionistDoc*	m_pDoc;		// pointer to document to communicate with the document
 
 	// All attributes here
 	int		m_nSize;
+	int		m_nLineWidth;
+	int		m_nLineAngle;
 
 	// Static class members
 	static Fl_Menu_Item		menuitems[];
 	static Fl_Menu_Item		brushTypeMenu[NUM_BRUSH_TYPE+1];
+	static Fl_Menu_Item		directionTypeMenu[NUM_DIRECTION_TYPE + 1];
 
 	static ImpressionistUI*	whoami(Fl_Menu_* o);
 
-	// All callbacks here.  Callbacks are declared 
-	// static
+	// All callbacks here.  Callbacks are declared static
 	static void	cb_load_image(Fl_Menu_* o, void* v);
 	static void	cb_save_image(Fl_Menu_* o, void* v);
 	static void	cb_brushes(Fl_Menu_* o, void* v);
@@ -76,7 +85,9 @@ private:
 	static void	cb_clear_canvas_button(Fl_Widget* o, void* v);
 	static void	cb_sizeSlides(Fl_Widget* o, void* v);
 
-	static void cb_MyValueSlides(Fl_Widget* o, void* v)
+	static void cb_lineWidthSlides(Fl_Widget* o, void* v);
+	static void cb_lineAngleSlides(Fl_Widget* o, void* v);
+	static void cb_DirectionChoice(Fl_Widget* o, void* v);
 };
 
 #endif

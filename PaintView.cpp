@@ -9,6 +9,8 @@
 #include "impressionistUI.h"
 #include "paintview.h"
 #include "ImpBrush.h"
+#include <cmath>
+#include <vector>
 
 
 #define LEFT_MOUSE_DOWN		1
@@ -27,6 +29,10 @@
 static int		eventToDo;
 static int		isAnEvent=0;
 static Point	coord;
+static Point	startDrag;
+static Point	endDrag;
+static bool		dragging = false;
+static float	dx, dy, angle, gradx, grady;
 
 PaintView::PaintView(int			x, 
 					 int			y, 
@@ -40,6 +46,88 @@ PaintView::PaintView(int			x,
 
 }
 
+void PaintView::convertToGrayscale(GLubyte* src, GLubyte* dst, int width, int height)
+{
+	for (int y = 0; y < height; ++y)
+	{
+		for (int x = 0; x < width; ++x)
+		{
+			GLubyte* pixel = m_pDoc->GetOriginalPixel(x, y);
+			dst[y * width + x] = static_cast<GLubyte>(0.299 * pixel[0] +
+															0.587 * pixel[1] +
+															0.144 * pixel[2]);
+		}
+	}
+}
+
+void PaintView::boxBlurImage(GLubyte* src, GLubyte* dest, int width, int height)
+{
+	const int kernelSize = 3;
+	const int halfKernelSize = kernelSize / 2;
+	const float kernelSum = kernelSize * kernelSize;
+
+	for (int y = halfKernelSize; y < height - halfKernelSize; ++y)
+	{
+		for (int x = halfKernelSize; x < width - halfKernelSize; ++x)
+		{
+			float sum = 0.0f;
+			for (int ky = -halfKernelSize; ky <= halfKernelSize; ++ky)
+			{
+				for (int kx = -halfKernelSize; kx <= halfKernelSize; ++kx)
+				{
+					sum += src[(y + ky) * width + (x + kx)];
+				}
+			}
+			dest[y * width + x] = static_cast<GLubyte>(sum / kernelSum);
+		}
+	}
+}
+
+void PaintView::calculateGradient(const Point& source)
+{
+	int x = source.x;
+	int y = source.y;
+	int width = m_pDoc->m_nWidth;
+	int height = m_pDoc->m_nHeight;
+	GLubyte* bitmap = m_pDoc->m_ucBitmap;
+
+	std::vector<GLubyte> grayscaleBitmap(width * height);
+	convertToGrayscale(bitmap, grayscaleBitmap.data(), width, height);
+
+	std::vector<GLubyte> blurredBitmap(width * height);
+	boxBlurImage(grayscaleBitmap.data(), blurredBitmap.data(), width, height);
+
+	if (x > 0 && x < width - 1 && y > 0 && y < height - 1)
+	{
+		gradx = (blurredBitmap[(y - 1) * width + (x + 1)] - blurredBitmap[(y - 1) * width + (x - 1)] +
+			2 * blurredBitmap[y * width + (x + 1)] - 2 * blurredBitmap[y * width + (x - 1)] +
+			blurredBitmap[(y + 1) * width + (x + 1)] - blurredBitmap[(y + 1) * width + (x - 1)]) / 8.0f;
+
+		grady = (blurredBitmap[(y + 1) * width + (x - 1)] - blurredBitmap[(y - 1) * width + (x - 1)] +
+			2 * blurredBitmap[(y + 1) * width + x] - 2 * blurredBitmap[(y - 1) * width + x] +
+			blurredBitmap[(y + 1) * width + (x + 1)] - blurredBitmap[(y - 1) * width + (x + 1)]) / 8.0f;
+	}
+	else
+	{
+		gradx = 0.0f;
+		grady = 0.0f;
+	}
+}
+
+void PaintView::display()
+{
+	RestoreContent();
+
+	if (dragging) {
+		glLineWidth(2);
+		glColor3f(1, 0, 0);
+		glBegin(GL_LINES);
+		glVertex2d(startDrag.x, startDrag.y);
+		glVertex2d(endDrag.x, endDrag.y);
+		glEnd();
+	}
+
+}
 
 void PaintView::draw()
 {
@@ -96,7 +184,7 @@ void PaintView::draw()
 	{
 
 		// Clear it after processing.
-		isAnEvent	= 0;	
+		isAnEvent	= 0;
 
 		Point source( coord.x + m_nStartCol, m_nEndRow - coord.y );
 		Point target( coord.x, m_nWindowHeight - coord.y );
@@ -105,9 +193,34 @@ void PaintView::draw()
 		switch (eventToDo) 
 		{
 		case LEFT_MOUSE_DOWN:
+			startDrag.x = target.x;
+			startDrag.y = target.y;
 			m_pDoc->m_pCurrentBrush->BrushBegin( source, target );
 			break;
 		case LEFT_MOUSE_DRAG:
+
+			if (m_pDoc->m_pCurrentDirection == CURSOR) {
+				endDrag.x = target.x;
+				endDrag.y = target.y;
+
+				dx = endDrag.x - startDrag.x;
+				dy = endDrag.y - startDrag.y;
+				angle = atan2(dy, dx) * 180.0 / M_PI;
+				if (angle < 0) angle += 360;
+
+				m_pDoc->m_pUI->setLineAngle(angle);
+
+				startDrag.x = endDrag.x;
+				startDrag.y = endDrag.y;
+			}
+			else if (m_pDoc->m_pCurrentDirection == GRADIENT) {
+				calculateGradient(source);
+				angle = (atan2(grady, gradx) + M_PI/2) * 180.0f / M_PI;
+				if (angle < 0) angle += 360;
+
+				m_pDoc->m_pUI->setLineAngle(angle);
+			}
+
 			m_pDoc->m_pCurrentBrush->BrushMove( source, target );
 			break;
 		case LEFT_MOUSE_UP:
@@ -117,13 +230,26 @@ void PaintView::draw()
 			RestoreContent();
 			break;
 		case RIGHT_MOUSE_DOWN:
-
+			startDrag.x = target.x;
+			startDrag.y = target.y;
 			break;
 		case RIGHT_MOUSE_DRAG:
-
+			dragging = true;
+			endDrag.x = target.x;
+			endDrag.y = target.y;
+			display();
 			break;
 		case RIGHT_MOUSE_UP:
+			dragging = false; 
+			endDrag.x = target.x;
+			endDrag.y = target.y;
+			display();
 
+			dx = endDrag.x - startDrag.x;
+			dy = endDrag.y - startDrag.y;
+			angle = atan2(dy, dx) * 180.0 / M_PI;
+			if (angle < 0) angle += 360;
+			m_pDoc->m_pUI->setLineAngle(angle);
 			break;
 
 		default:

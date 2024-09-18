@@ -82,12 +82,33 @@ void ImpressionistDoc::setBrushType(int type)
 	m_pCurrentBrush	= ImpBrush::c_pBrushes[type];
 }
 
+void ImpressionistDoc::setDirectionType(int type)
+{
+	m_pCurrentDirection = type;
+}
+
 //---------------------------------------------------------
 // Returns the size of the brush.
 //---------------------------------------------------------
 int ImpressionistDoc::getSize()
 {
 	return m_pUI->getSize();
+}
+
+//---------------------------------------------------------
+// Returns the line width of the brush.
+//---------------------------------------------------------
+int ImpressionistDoc::getLineWidth()
+{
+	return m_pUI->getLineWidth();
+}
+
+//---------------------------------------------------------
+// Returns the line angle of the brush.
+//---------------------------------------------------------
+int ImpressionistDoc::getLineAngle()
+{
+	return m_pUI->getLineAngle();
 }
 
 //---------------------------------------------------------

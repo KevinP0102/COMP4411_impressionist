@@ -29,12 +29,23 @@ void LineBrush::BrushMove(const Point source, const Point target)
 
 	int line_size = pDoc->getSize();
 
+	glLineWidth(pDoc->getLineWidth());
+
+	glPushMatrix();
+
+	glTranslatef(target.x, target.y, 0);
+	glRotatef(pDoc->getLineAngle(), 0, 0, 1);
+
 	glBegin(GL_LINES);
 	SetColor(source);
 
-	glVertex2d(target.x - line_size / 2, target.y);
-	glVertex2d(target.x + line_size - line_size / 2, target.y);
+	glVertex2d(- line_size / 2, 0);
+	glVertex2d(line_size - line_size / 2, 0);
 	glEnd();
+
+	glPopMatrix();
+
+	
 }
 
 void LineBrush::BrushEnd(const Point source, const Point target)

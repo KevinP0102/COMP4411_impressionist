@@ -13,13 +13,22 @@
 #include <GL/glu.h>
 #include <stdlib.h>
 
+enum MyEnum
+{
+
+};
+
 class ImpressionistDoc;
 
 class PaintView : public Fl_Gl_Window
 {
 public:
 	PaintView(int x, int y, int w, int h, const char* l);
+
+	void display();
+
 	void draw();
+
 	int handle(int event);
 
 	void refresh();
@@ -29,6 +38,8 @@ public:
 	void SaveCurrentContent();
 
 	void RestoreContent();
+
+
 
 	ImpressionistDoc *m_pDoc;
 
@@ -42,6 +53,10 @@ private:
 			m_nEndCol,
 			m_nWindowWidth, 
 			m_nWindowHeight;
+
+	void calculateGradient(const Point& source);
+	void boxBlurImage(GLubyte* src, GLubyte* dest, int width, int height);
+	void convertToGrayscale(GLubyte* src, GLubyte* dest, int width, int height);
 
 };
 

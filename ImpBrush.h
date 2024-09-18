@@ -21,6 +21,14 @@ enum
 	NUM_BRUSH_TYPE // Make sure this stays at the end!
 };
 
+enum DirectionType
+{
+	SLIDER = 0,
+	GRADIENT,
+	CURSOR,
+	NUM_DIRECTION_TYPE
+};
+
 
 class ImpressionistDoc; // Pre-declaring class
 
