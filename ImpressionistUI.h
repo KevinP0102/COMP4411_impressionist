@@ -113,6 +113,7 @@ private:
 	static void cb_blueIntensitySlides(Fl_Widget* o, void* v);
 	static void cb_DirectionChoice(Fl_Widget* o, void* v);
 	static void cb_confirmIntensityButton(Fl_Widget* o, void* v);
+	static void cb_undo(Fl_Menu_* o, void* v);
 };
 
 #endif

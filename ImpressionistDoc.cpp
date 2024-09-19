@@ -19,6 +19,7 @@
 #include "ScatteredPointBrush.h"
 #include "ScatteredLineBrush.h"
 #include "ScatteredCircleBrush.h"
+#include "BlurBrush.h"
 
 
 #define DESTROY(p)	{  if ((p)!=NULL) {delete [] p; p=NULL; } }
@@ -31,7 +32,7 @@ ImpressionistDoc::ImpressionistDoc()
 	m_nWidth		= -1;
 	m_ucBitmap		= NULL;
 	m_ucPainting	= NULL;
-
+	m_pUndoPainting = NULL;
 
 	// create one instance of each brush
 	ImpBrush::c_nBrushCount	= NUM_BRUSH_TYPE;
@@ -50,6 +51,8 @@ ImpressionistDoc::ImpressionistDoc()
 		= new ScatteredLineBrush( this, "Scattered Lines" );
 	ImpBrush::c_pBrushes[BRUSH_SCATTERED_CIRCLES]	
 		= new ScatteredCircleBrush( this, "Scattered Circles" );
+	ImpBrush::c_pBrushes[BRUSH_BLUR]
+		= new BlurBrush(this, "Blur");
 
 	// make one of the brushes current
 	m_pCurrentBrush	= ImpBrush::c_pBrushes[0];
@@ -180,12 +183,16 @@ int ImpressionistDoc::loadImage(char *iname)
 	// release old storage
 	if ( m_ucBitmap ) delete [] m_ucBitmap;
 	if ( m_ucPainting ) delete [] m_ucPainting;
+	if (m_pUndoPainting) delete[] m_pUndoPainting;
 
 	m_ucBitmap		= data;
 
 	// allocate space for draw view
 	m_ucPainting	= new unsigned char [width*height*3];
 	memset(m_ucPainting, 0, width*height*3);
+
+	m_pUndoPainting = new GLubyte[width * height * 3];
+	memset(m_pUndoPainting, 0, width * height * 3);
 
 	m_pUI->m_mainWindow->resize(m_pUI->m_mainWindow->x(), 
 								m_pUI->m_mainWindow->y(), 
@@ -237,6 +244,15 @@ int ImpressionistDoc::clearCanvas()
 
 		// refresh paint view as well	
 		m_pUI->m_paintView->refresh();
+	}
+
+	if (m_pUndoPainting)
+	{
+		delete[] m_pUndoPainting;
+
+		m_pUndoPainting = new GLubyte[m_nPaintWidth * m_nPaintHeight * 3];
+		memset(m_pUndoPainting, 0, m_nPaintWidth * m_nPaintHeight * 3);
+		
 	}
 	
 	return 0;
@@ -307,4 +323,41 @@ void ImpressionistDoc::SwapBitmaps()
 
 	m_pUI->m_paintView->resizeWindow(m_nPaintWidth, m_nPaintHeight);
 	m_pUI->m_paintView->refresh();
+}
+
+void ImpressionistDoc::SaveUndoPainting()
+{
+	int width = m_nPaintWidth;
+	int height = m_nPaintHeight;
+
+	if (m_pUndoPainting == NULL)
+	{
+		m_pUndoPainting = new GLubyte[width * height * 3];
+		memset(m_pUndoPainting, 0, width * height * 3);
+	}
+
+	if (m_ucPainting == NULL)
+	{
+		return;
+	}
+
+	memcpy(m_pUndoPainting, m_ucPainting, width * height * 3);
+}
+
+void ImpressionistDoc::RestoreUndoPainting()
+{
+	if (m_pUndoPainting == NULL)
+	{
+		return;
+	}
+
+	int width = m_nPaintWidth;
+	int height = m_nPaintHeight;
+
+	memcpy(m_ucPainting, m_pUndoPainting, width * height * 3);
+
+	// Redraw the painting
+	glDrawPixels(width, height, GL_RGB, GL_UNSIGNED_BYTE, m_ucPainting);
+	glFlush();
+
 }

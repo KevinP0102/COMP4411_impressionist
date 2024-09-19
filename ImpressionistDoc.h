@@ -63,6 +63,7 @@ public:
 	ImpBrush*			m_pCurrentBrush;
 
 	int					m_pCurrentDirection;
+	GLubyte*			m_pUndoPainting;
 
 	// Size of the brush.
 	int m_nSize;							
@@ -80,6 +81,8 @@ public:
 	GLubyte* GetPaintingPixel(int x, int y);
 	GLubyte* GetPaintingPixel(const Point p);
 	void SwapBitmaps();
+	void SaveUndoPainting();
+	void RestoreUndoPainting();
 
 private:
 	char			m_imageName[256];

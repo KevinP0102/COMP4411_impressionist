@@ -23,9 +23,9 @@ Here is a list of suggestions for extending the program. You are encouraged to c
 
 5. [x] ![bell](http://i.imgur.com/HJ7cCdM.gif) Add controls that allow you to manipulate the color of the image. For example, you could implement independent scaling of the red, green, and blue channels. 
 
-6. [ ] ![bell](http://i.imgur.com/HJ7cCdM.gif) Design a brush that selectively applies one or more filters such as blurring and sharpening. 
+6. [x] ![bell](http://i.imgur.com/HJ7cCdM.gif) Design a brush that selectively applies one or more filters such as blurring and sharpening. 
 
-   1. [ ] ![bell](http://i.imgur.com/HJ7cCdM.gif) Add an undo feature with at least one level of undo so that you can try a brush and decide to undo its effect on the canvas. This comes in very handy for experimenting with brush and filtering effects. 
+   1. [x] ![bell](http://i.imgur.com/HJ7cCdM.gif) Add an undo feature with at least one level of undo so that you can try a brush and decide to undo its effect on the canvas. This comes in very handy for experimenting with brush and filtering effects. 
 
 7. [ ] ![bell](http://i.imgur.com/HJ7cCdM.gif) Add the ability to dissolve one image into another. 
 

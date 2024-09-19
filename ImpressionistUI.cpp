@@ -296,7 +296,12 @@ void ImpressionistUI::cb_brushChoice(Fl_Widget* o, void* v)
 		pUI->m_DirectionTypeChoice->deactivate();
 	}
 
+	if (type == BRUSH_BLUR)
+		pUI->m_OpacitySlider->deactivate();
+	else
+		pUI->m_OpacitySlider->activate();
 
+	pDoc->SaveUndoPainting();
 	pDoc->setBrushType(type);
 }
 
@@ -373,6 +378,15 @@ void ImpressionistUI::cb_confirmIntensityButton(Fl_Widget* o, void* v)
 	pUI->setBlueIntensity(1.0f);
 
 	pUI->m_colorScaleDialog->hide();
+}
+
+void ImpressionistUI::cb_undo(Fl_Menu_* o, void* v)
+{
+	ImpressionistDoc* pDoc = whoami(o)->getDocument();
+
+	pDoc->RestoreUndoPainting();
+
+	whoami(o)->m_paintView->refresh();
 }
 
 //---------------------------------- per instance functions --------------------------------------
@@ -518,18 +532,19 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 		{ "&Load Image...",	FL_ALT + 'l', (Fl_Callback *)ImpressionistUI::cb_load_image },
 		{ "&Save Image...",	FL_ALT + 's', (Fl_Callback *)ImpressionistUI::cb_save_image },
 		{ "&Brushes...",	FL_ALT + 'b', (Fl_Callback *)ImpressionistUI::cb_brushes }, 
-		{ "&Clear Canvas", FL_ALT + 'c', (Fl_Callback *)ImpressionistUI::cb_clear_canvas, 0, FL_MENU_DIVIDER },
+		{ "&Clear Canvas",	FL_ALT + 'c', (Fl_Callback *)ImpressionistUI::cb_clear_canvas, 0, FL_MENU_DIVIDER },
 		
 		{ "&Quit",			FL_ALT + 'q', (Fl_Callback *)ImpressionistUI::cb_exit },
 		{ 0 },
 
 	{ "&Option",		0, 0, 0, FL_SUBMENU },
 		{ "&Swap Views",	FL_ALT + 'd', (Fl_Callback *)ImpressionistUI::cb_swap },
-		{ "&Color Scale", FL_ALT + 'o', (Fl_Callback*)ImpressionistUI::cb_color_scale },
+		{ "&Color Scale",	FL_ALT + 'o', (Fl_Callback*)ImpressionistUI::cb_color_scale },
+		{ "&Undo",			FL_CTRL + 'z', (Fl_Callback*)ImpressionistUI::cb_undo },
 		{ 0 },
 
 	{ "&Help",		0, 0, 0, FL_SUBMENU },
-		{ "&About",	FL_ALT + 'a', (Fl_Callback*)ImpressionistUI::cb_about },
+		{ "&About",			FL_ALT + 'a', (Fl_Callback*)ImpressionistUI::cb_about },
 		{ 0 },
 
 	{ 0 }
@@ -542,7 +557,8 @@ Fl_Menu_Item ImpressionistUI::brushTypeMenu[NUM_BRUSH_TYPE+1] = {
   {"Circles",			FL_ALT+'c', (Fl_Callback *)ImpressionistUI::cb_brushChoice, (void *)BRUSH_CIRCLES},
   {"Scattered Points",	FL_ALT+'q', (Fl_Callback *)ImpressionistUI::cb_brushChoice, (void *)BRUSH_SCATTERED_POINTS},
   {"Scattered Lines",	FL_ALT+'m', (Fl_Callback *)ImpressionistUI::cb_brushChoice, (void *)BRUSH_SCATTERED_LINES},
-  {"Scattered Circles",	FL_ALT+'d', (Fl_Callback *)ImpressionistUI::cb_brushChoice, (void *)BRUSH_SCATTERED_CIRCLES},
+  {"Scattered Circles",	FL_ALT + 'd', (Fl_Callback*)ImpressionistUI::cb_brushChoice, (void*)BRUSH_SCATTERED_CIRCLES},
+  {"Filter - Blur",		FL_ALT + 'b', (Fl_Callback*)ImpressionistUI::cb_brushChoice, (void*)BRUSH_BLUR},
   {0}
 };
 
@@ -656,8 +672,8 @@ ImpressionistUI::ImpressionistUI() {
 		m_OpacitySlider->align(FL_ALIGN_RIGHT);
 		m_OpacitySlider->callback(cb_opacitySlides);
 
-
-		if (m_BrushTypeChoice->value() == BRUSH_LINES || m_BrushTypeChoice->value() == BRUSH_SCATTERED_LINES) {
+		if (m_BrushTypeChoice->value() == BRUSH_LINES || m_BrushTypeChoice->value() == BRUSH_SCATTERED_LINES)
+		{
 			m_LineWidthSlider->activate();
 			m_LineAngleSlider->activate();
 			m_DirectionTypeChoice->activate();
@@ -668,6 +684,11 @@ ImpressionistUI::ImpressionistUI() {
 			m_LineAngleSlider->deactivate();
 			m_DirectionTypeChoice->deactivate();
 		}
+
+		if (m_BrushTypeChoice->value() == BRUSH_BLUR)
+			m_OpacitySlider->deactivate();
+		else
+			m_OpacitySlider->activate();
 
     m_brushDialog->end();	
 

@@ -201,6 +201,7 @@ void PaintView::draw()
 		case LEFT_MOUSE_DOWN:
 			startDrag.x = target.x;
 			startDrag.y = target.y;
+
 			if (target.x >= 0 && target.x < m_pDoc->m_nPaintWidth && 
 				m_nWindowHeight - target.y >= 0 && m_nWindowHeight - target.y < m_pDoc->m_nPaintHeight)
 				m_pDoc->m_pCurrentBrush->BrushBegin( source, target );
@@ -231,6 +232,11 @@ void PaintView::draw()
 			if (target.x >= 0 && target.x < m_pDoc->m_nPaintWidth && 
 				m_nWindowHeight - target.y >= 0 && m_nWindowHeight - target.y < m_pDoc->m_nPaintHeight)
 				m_pDoc->m_pCurrentBrush->BrushMove( source, target );
+
+			if (m_pDoc->m_pUI->m_BrushTypeChoice->value() == BRUSH_BLUR) {
+				SaveCurrentContent();
+				RestoreContent();
+			}
 			break;
 		case LEFT_MOUSE_UP:
 			m_pDoc->m_pCurrentBrush->BrushEnd( source, target );
