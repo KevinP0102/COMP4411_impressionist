@@ -299,6 +299,11 @@ void ImpressionistUI::cb_lineAngleSlides(Fl_Widget* o, void* v)
 	((ImpressionistUI*)(o->user_data()))->m_nLineAngle = int(((Fl_Slider*)o)->value());
 }
 
+void ImpressionistUI::cb_opacitySlides(Fl_Widget* o, void* v)
+{
+	((ImpressionistUI*)(o->user_data()))->m_nOpacity = float(((Fl_Slider*)o)->value());
+}
+
 void ImpressionistUI::cb_DirectionChoice(Fl_Widget* o, void* v)
 {
 	ImpressionistUI* pUI = ((ImpressionistUI*)(o->user_data()));
@@ -394,6 +399,19 @@ void ImpressionistUI::setLineAngle(int lineAngle)
 		m_LineAngleSlider->value(m_nLineAngle);
 }
 
+float ImpressionistUI::getOpacity()
+{
+	return m_nOpacity;
+}
+
+void ImpressionistUI::setOpacity(float opacity)
+{
+	m_nOpacity = opacity;
+
+	if (opacity <= 1)
+		m_OpacitySlider->value(m_nOpacity);
+}
+
 // Main menu definition
 Fl_Menu_Item ImpressionistUI::menuitems[] = {
 	{ "&File",		0, 0, 0, FL_SUBMENU },
@@ -464,6 +482,7 @@ ImpressionistUI::ImpressionistUI() {
 	m_nSize = 10;
 	m_nLineWidth = 5;
 	m_nLineAngle = 0;
+	m_nOpacity = 1;
 
 	// brush dialog definition
 	m_brushDialog = new Fl_Window(400, 325, "Brush Dialog");
@@ -517,6 +536,18 @@ ImpressionistUI::ImpressionistUI() {
 		m_LineAngleSlider->value(m_nLineAngle);
 		m_LineAngleSlider->align(FL_ALIGN_RIGHT);
 		m_LineAngleSlider->callback(cb_lineAngleSlides);
+
+		m_OpacitySlider = new Fl_Value_Slider(10, 170, 300, 20, "Opacity");
+		m_OpacitySlider->user_data((void*)(this));	// record self to be used by static callback functions
+		m_OpacitySlider->type(FL_HOR_NICE_SLIDER);
+		m_OpacitySlider->labelfont(FL_COURIER);
+		m_OpacitySlider->labelsize(12);
+		m_OpacitySlider->bounds(0.00f, 1.00f);
+		m_OpacitySlider->step(0.01f);
+		m_OpacitySlider->value(m_nOpacity);
+		m_OpacitySlider->align(FL_ALIGN_RIGHT);
+		m_OpacitySlider->callback(cb_opacitySlides);
+
 
 		if (m_BrushTypeChoice->value() == BRUSH_LINES || m_BrushTypeChoice->value() == BRUSH_SCATTERED_LINES) {
 			m_LineWidthSlider->activate();

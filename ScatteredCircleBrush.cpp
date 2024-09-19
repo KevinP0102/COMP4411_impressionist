@@ -32,22 +32,11 @@ void ScatteredCircleBrush::BrushMove(const Point source, const Point target)
 	GLfloat angle;
 	float circle_radius = pDoc->getSize();
 
-	glBegin(GL_TRIANGLE_FAN);
-	SetColor(source);
-
-	for (int i = 0; i < segment; i++) {
-		angle = 2.0f * M_PI * float(i) / float(segment);
-		glVertex2f(target.x + circle_radius * cosf(angle), target.y + circle_radius * sinf(angle));
-	}
-
-	glEnd();
-
 	int randNum = round(frand() + 3);
-	int line_size = pDoc->getSize();
 
 	for (int i = 0; i < randNum; i++) {
-		int newX_multiplier = round(frand() * 3 - frand() * 3) * line_size / 5;
-		int newY_multiplier = round(frand() * 2 - frand() * 2) * line_size / 5;
+		int newX_multiplier = round(frand() * 3 - frand() * 3) * circle_radius / 4;
+		int newY_multiplier = round(frand() * 2 - frand() * 2) * circle_radius / 4;
 
 		Point newSource = Point(source.x + newX_multiplier, source.y + newY_multiplier);
 

@@ -31,6 +31,8 @@ public:
 	void	setLineWidth(int lineWidth);	// set the UI line width
 	int		getLineAngle();					// get the UI line angle
 	void	setLineAngle(int lineAngle);	// set the UI line angle
+	float	getOpacity();					// get the UI opacity
+	void	setOpacity(float opacity);		// set the UI opacity
 	char*	getImageName();					// get the current image name
 	
 	void	setDirectionType(int type);
@@ -62,6 +64,8 @@ public:
 	GLubyte* GetOriginalPixel( int x, int y );   
 	// Get the color of the original picture at the specified point	
 	GLubyte* GetOriginalPixel( const Point p );  
+	GLubyte* GetPaintingPixel(int x, int y);
+	GLubyte* GetPaintingPixel(const Point p);
 
 
 private:

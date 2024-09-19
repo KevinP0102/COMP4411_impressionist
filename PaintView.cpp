@@ -100,12 +100,12 @@ void PaintView::calculateGradient(const Point& source)
 	if (x > 0 && x < width - 1 && y > 0 && y < height - 1)
 	{
 		gradx = (blurredBitmap[(y - 1) * width + (x + 1)] - blurredBitmap[(y - 1) * width + (x - 1)] +
-			2 * blurredBitmap[y * width + (x + 1)] - 2 * blurredBitmap[y * width + (x - 1)] +
-			blurredBitmap[(y + 1) * width + (x + 1)] - blurredBitmap[(y + 1) * width + (x - 1)]) / 8.0f;
+				2 * blurredBitmap[y * width + (x + 1)] - 2 * blurredBitmap[y * width + (x - 1)] +
+				blurredBitmap[(y + 1) * width + (x + 1)] - blurredBitmap[(y + 1) * width + (x - 1)]) / 8.0f;
 
 		grady = (blurredBitmap[(y + 1) * width + (x - 1)] - blurredBitmap[(y - 1) * width + (x - 1)] +
-			2 * blurredBitmap[(y + 1) * width + x] - 2 * blurredBitmap[(y - 1) * width + x] +
-			blurredBitmap[(y + 1) * width + (x + 1)] - blurredBitmap[(y - 1) * width + (x + 1)]) / 8.0f;
+				2 * blurredBitmap[(y + 1) * width + x] - 2 * blurredBitmap[(y - 1) * width + x] +
+				blurredBitmap[(y + 1) * width + (x + 1)] - blurredBitmap[(y - 1) * width + (x + 1)]) / 8.0f;
 	}
 	else
 	{
@@ -143,6 +143,10 @@ void PaintView::draw()
 
 		// We're only using 2-D, so turn off depth 
 		glDisable( GL_DEPTH_TEST );
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 
 		ortho();
 

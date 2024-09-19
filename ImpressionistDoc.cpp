@@ -111,6 +111,11 @@ int ImpressionistDoc::getLineAngle()
 	return m_pUI->getLineAngle();
 }
 
+float ImpressionistDoc::getOpacity()
+{
+	return m_pUI->getOpacity();
+}
+
 //---------------------------------------------------------
 // Load the specified image
 // This is called by the UI when the load image button is 
@@ -226,3 +231,22 @@ GLubyte* ImpressionistDoc::GetOriginalPixel( const Point p )
 	return GetOriginalPixel( p.x, p.y );
 }
 
+GLubyte* ImpressionistDoc::GetPaintingPixel(int x, int y)
+{
+	if (x < 0)
+		x = 0;
+	else if (x >= m_nPaintWidth)
+		x = m_nPaintWidth - 1;
+
+	if (y < 0)
+		y = 0;
+	else if (y >= m_nPaintHeight)
+		y = m_nPaintHeight - 1;
+
+	return (GLubyte*)(m_ucPainting + 3 * (y * m_nPaintWidth + x));
+}
+
+GLubyte* ImpressionistDoc::GetPaintingPixel(const Point p)
+{
+	return GetPaintingPixel(p.x, p.y);
+}
