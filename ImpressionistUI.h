@@ -35,14 +35,19 @@ public:
 
 // for brush dialog
 	Fl_Window*			m_brushDialog;
+	Fl_Window*			m_colorScaleDialog;
 	Fl_Choice*			m_BrushTypeChoice;
 	Fl_Choice*			m_DirectionTypeChoice;
 
 	Fl_Slider*			m_BrushSizeSlider;
 	Fl_Slider*			m_LineWidthSlider;
 	Fl_Slider*			m_LineAngleSlider;
+	Fl_Slider*			m_RedIntensitySlider;
+	Fl_Slider*			m_GreenIntensitySlider;
+	Fl_Slider*			m_BlueIntensitySlider;
 	Fl_Slider*			m_OpacitySlider;
 	Fl_Button*          m_ClearCanvasButton;
+	Fl_Button*			m_ConfirmIntensityButton;
 
 	// Member functions
 	void				setDocument(ImpressionistDoc* doc);
@@ -61,6 +66,12 @@ public:
 	void				setLineAngle(int lineAngle);
 	float				getOpacity();
 	void				setOpacity(float opacity);
+	float				getRedIntensity();
+	void				setRedIntensity(float redIntensity);
+	float				getGreenIntensity();
+	void				setGreenIntensity(float greenIntensity);
+	float				getBlueIntensity();
+	void				setBlueIntensity(float blueIntensity);
 
 private:
 	ImpressionistDoc*	m_pDoc;		// pointer to document to communicate with the document
@@ -70,6 +81,9 @@ private:
 	int		m_nLineWidth;
 	int		m_nLineAngle;
 	float	m_nOpacity;
+	float   m_nRedIntensity;
+	float   m_nGreenIntensity;
+	float   m_nBlueIntensity;
 
 	// Static class members
 	static Fl_Menu_Item		menuitems[];
@@ -82,9 +96,11 @@ private:
 	static void	cb_load_image(Fl_Menu_* o, void* v);
 	static void	cb_save_image(Fl_Menu_* o, void* v);
 	static void	cb_brushes(Fl_Menu_* o, void* v);
+	static void cb_color_scale(Fl_Menu_* o, void* v);
 	static void	cb_clear_canvas(Fl_Menu_* o, void* v);
 	static void	cb_exit(Fl_Menu_* o, void* v);
 	static void	cb_about(Fl_Menu_* o, void* v);
+	static void cb_swap(Fl_Menu_* o, void* v);
 	static void	cb_brushChoice(Fl_Widget* o, void* v);
 	static void	cb_clear_canvas_button(Fl_Widget* o, void* v);
 	static void	cb_sizeSlides(Fl_Widget* o, void* v);
@@ -92,8 +108,11 @@ private:
 	static void cb_lineWidthSlides(Fl_Widget* o, void* v);
 	static void cb_lineAngleSlides(Fl_Widget* o, void* v);
 	static void cb_opacitySlides(Fl_Widget* o, void* v);
+	static void cb_redIntensitySlides(Fl_Widget* o, void* v);
+	static void cb_greenIntensitySlides(Fl_Widget* o, void* v);
+	static void cb_blueIntensitySlides(Fl_Widget* o, void* v);
 	static void cb_DirectionChoice(Fl_Widget* o, void* v);
-
+	static void cb_confirmIntensityButton(Fl_Widget* o, void* v);
 };
 
 #endif

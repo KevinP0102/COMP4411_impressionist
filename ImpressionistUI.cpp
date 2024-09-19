@@ -207,6 +207,22 @@ void ImpressionistUI::cb_brushes(Fl_Menu_* o, void* v)
 	whoami(o)->m_brushDialog->show();
 }
 
+void ImpressionistUI::cb_color_scale(Fl_Menu_* o, void* v)
+{
+	ImpressionistDoc* pDoc = whoami(o)->getDocument();
+
+	if (pDoc->m_ucBitmap == NULL)
+	{
+		fl_alert("Please load an image first.");
+	}
+	else
+	{
+		whoami(o)->m_colorScaleDialog->show();
+	}
+
+	return;
+}
+
 //------------------------------------------------------------
 // Clears the paintview canvas.
 // Called by the UI when the clear canvas menu item is chosen
@@ -236,6 +252,22 @@ void ImpressionistUI::cb_exit(Fl_Menu_* o, void* v)
 void ImpressionistUI::cb_about(Fl_Menu_* o, void* v) 
 {
 	fl_message("Impressionist FLTK version for CS341, Spring 2002");
+}
+
+void ImpressionistUI::cb_swap(Fl_Menu_* o, void* v)
+{
+	ImpressionistDoc* pDoc = whoami(o)->getDocument();
+
+	if (pDoc->m_ucBitmap == NULL)
+	{
+		fl_alert("Please load an image first.");
+	}
+	else
+	{
+		pDoc->SwapBitmaps();
+	}
+
+	return;
 }
 
 //------- UI should keep track of the current for all the controls for answering the query from Doc ---------
@@ -312,6 +344,35 @@ void ImpressionistUI::cb_DirectionChoice(Fl_Widget* o, void* v)
 	int type = (int)v;
 
 	pDoc->setDirectionType(type);
+}
+
+void ImpressionistUI::cb_redIntensitySlides(Fl_Widget* o, void* v)
+{
+	((ImpressionistUI*)(o->user_data()))->m_nRedIntensity = float(((Fl_Slider*)o)->value());
+}
+
+void ImpressionistUI::cb_greenIntensitySlides(Fl_Widget* o, void* v)
+{
+	((ImpressionistUI*)(o->user_data()))->m_nGreenIntensity = float(((Fl_Slider*)o)->value());
+}
+
+void ImpressionistUI::cb_blueIntensitySlides(Fl_Widget* o, void* v)
+{
+	((ImpressionistUI*)(o->user_data()))->m_nBlueIntensity = float(((Fl_Slider*)o)->value());
+}
+
+void ImpressionistUI::cb_confirmIntensityButton(Fl_Widget* o, void* v)
+{
+	ImpressionistUI* pUI = ((ImpressionistUI*)(o->user_data()));
+	ImpressionistDoc* pDoc = pUI->getDocument();
+
+	pDoc->applyIntensity(pUI->getRedIntensity(), pUI->getGreenIntensity(), pUI->getBlueIntensity());
+
+	pUI->setRedIntensity(1.0f);
+	pUI->setGreenIntensity(1.0f);
+	pUI->setBlueIntensity(1.0f);
+
+	pUI->m_colorScaleDialog->hide();
 }
 
 //---------------------------------- per instance functions --------------------------------------
@@ -412,6 +473,44 @@ void ImpressionistUI::setOpacity(float opacity)
 		m_OpacitySlider->value(m_nOpacity);
 }
 
+float ImpressionistUI::getRedIntensity()
+{
+	return m_nRedIntensity;
+}
+
+void ImpressionistUI::setRedIntensity(float redIntensity)
+{
+	m_nRedIntensity = redIntensity;
+
+	if (redIntensity <= 1.5f)
+		m_RedIntensitySlider->value(m_nRedIntensity);
+}
+
+float ImpressionistUI::getGreenIntensity()
+{
+	return m_nGreenIntensity;
+}
+
+void ImpressionistUI::setGreenIntensity(float greenIntensity)
+{
+	m_nGreenIntensity = greenIntensity;
+
+	if (greenIntensity <= 1.5f)
+		m_GreenIntensitySlider->value(m_nGreenIntensity);
+}
+
+float ImpressionistUI::getBlueIntensity()
+{
+	return m_nBlueIntensity;
+}
+
+void ImpressionistUI::setBlueIntensity(float blueIntensity)
+{
+	m_nBlueIntensity = blueIntensity;
+
+	if (blueIntensity <= 1.5f)
+		m_BlueIntensitySlider->value(m_nBlueIntensity);
+}
 
 // Main menu definition
 Fl_Menu_Item ImpressionistUI::menuitems[] = {
@@ -424,8 +523,13 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 		{ "&Quit",			FL_ALT + 'q', (Fl_Callback *)ImpressionistUI::cb_exit },
 		{ 0 },
 
+	{ "&Option",		0, 0, 0, FL_SUBMENU },
+		{ "&Swap Views",	FL_ALT + 'd', (Fl_Callback *)ImpressionistUI::cb_swap },
+		{ "&Color Scale", FL_ALT + 'o', (Fl_Callback*)ImpressionistUI::cb_color_scale },
+		{ 0 },
+
 	{ "&Help",		0, 0, 0, FL_SUBMENU },
-		{ "&About",	FL_ALT + 'a', (Fl_Callback *)ImpressionistUI::cb_about },
+		{ "&About",	FL_ALT + 'a', (Fl_Callback*)ImpressionistUI::cb_about },
 		{ 0 },
 
 	{ 0 }
@@ -483,7 +587,10 @@ ImpressionistUI::ImpressionistUI() {
 	m_nSize = 10;
 	m_nLineWidth = 5;
 	m_nLineAngle = 0;
-	m_nOpacity = 1;
+	m_nOpacity = 1.00f;
+	m_nRedIntensity = 1.0f;
+	m_nGreenIntensity = 1.0f;
+	m_nBlueIntensity = 1.0f;
 
 	// brush dialog definition
 	m_brushDialog = new Fl_Window(400, 325, "Brush Dialog");
@@ -563,5 +670,46 @@ ImpressionistUI::ImpressionistUI() {
 		}
 
     m_brushDialog->end();	
+
+	m_colorScaleDialog = new Fl_Window(450, 125, "Color Intensity Dialog");
+
+		m_RedIntensitySlider = new Fl_Value_Slider(10, 10, 300, 20, "Red Intensity");
+		m_RedIntensitySlider->user_data((void*)(this));	// record self to be used by static callback functions
+		m_RedIntensitySlider->type(FL_HOR_NICE_SLIDER);
+		m_RedIntensitySlider->labelfont(FL_COURIER);
+		m_RedIntensitySlider->labelsize(12);
+		m_RedIntensitySlider->bounds(0.5f, 1.5f);
+		m_RedIntensitySlider->step(0.01f);
+		m_RedIntensitySlider->value(m_nRedIntensity);
+		m_RedIntensitySlider->align(FL_ALIGN_RIGHT);
+		m_RedIntensitySlider->callback(cb_redIntensitySlides);
+
+		m_GreenIntensitySlider = new Fl_Value_Slider(10, 40, 300, 20, "Green Intensity");
+		m_GreenIntensitySlider->user_data((void*)(this));	// record self to be used by static callback functions
+		m_GreenIntensitySlider->type(FL_HOR_NICE_SLIDER);
+		m_GreenIntensitySlider->labelfont(FL_COURIER);
+		m_GreenIntensitySlider->labelsize(12);
+		m_GreenIntensitySlider->bounds(0.5f, 1.5f);
+		m_GreenIntensitySlider->step(0.01f);
+		m_GreenIntensitySlider->value(m_nGreenIntensity);
+		m_GreenIntensitySlider->align(FL_ALIGN_RIGHT);
+		m_GreenIntensitySlider->callback(cb_greenIntensitySlides);
+
+		m_BlueIntensitySlider = new Fl_Value_Slider(10, 70, 300, 20, "Blue Intensity");
+		m_BlueIntensitySlider->user_data((void*)(this));	// record self to be used by static callback functions
+		m_BlueIntensitySlider->type(FL_HOR_NICE_SLIDER);
+		m_BlueIntensitySlider->labelfont(FL_COURIER);
+		m_BlueIntensitySlider->labelsize(12);
+		m_BlueIntensitySlider->bounds(0.5f, 1.5f);
+		m_BlueIntensitySlider->step(0.01f);
+		m_BlueIntensitySlider->value(m_nBlueIntensity);
+		m_BlueIntensitySlider->align(FL_ALIGN_RIGHT);
+		m_BlueIntensitySlider->callback(cb_blueIntensitySlides);
+
+		m_ConfirmIntensityButton = new Fl_Button(150, 100, 150, 20, "&Confirm Intensity");
+		m_ConfirmIntensityButton->user_data((void*)(this));
+		m_ConfirmIntensityButton->callback(cb_confirmIntensityButton);
+
+	m_colorScaleDialog->end();
 
 }

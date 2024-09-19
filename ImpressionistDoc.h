@@ -34,7 +34,16 @@ public:
 	float	getOpacity();					// get the UI opacity
 	void	setOpacity(float opacity);		// set the UI opacity
 	char*	getImageName();					// get the current image name
-	
+	float	getRedIntensity();				// get the UI red intensity
+	void	setRedIntensity(float redIntensity);	// set the UI red intensity
+	float	getGreenIntensity();			// get the UI green intensity
+	void	setGreenIntensity(float greenIntensity);	// set the UI green intensity
+	float	getBlueIntensity();				// get the UI blue intensity
+	void	setBlueIntensity(float blueIntensity);	// set the UI blue intensity
+
+	void	applyIntensity(float red, float green, float blue);
+	GLubyte clampIntensity(float intensity);
+
 	void	setDirectionType(int type);
 
 // Attributes
@@ -52,9 +61,13 @@ public:
 
 	// The current active brush.
 	ImpBrush*			m_pCurrentBrush;
+
 	int					m_pCurrentDirection;
+
 	// Size of the brush.
 	int m_nSize;							
+
+
 
 	ImpressionistUI*	m_pUI;
 
@@ -66,7 +79,7 @@ public:
 	GLubyte* GetOriginalPixel( const Point p );  
 	GLubyte* GetPaintingPixel(int x, int y);
 	GLubyte* GetPaintingPixel(const Point p);
-
+	void SwapBitmaps();
 
 private:
 	char			m_imageName[256];

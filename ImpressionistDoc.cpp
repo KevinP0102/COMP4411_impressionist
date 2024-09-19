@@ -116,6 +116,43 @@ float ImpressionistDoc::getOpacity()
 	return m_pUI->getOpacity();
 }
 
+float ImpressionistDoc::getRedIntensity()
+{
+	return m_pUI->getRedIntensity();
+}
+
+float ImpressionistDoc::getGreenIntensity()
+{
+	return m_pUI->getGreenIntensity();
+}
+
+float ImpressionistDoc::getBlueIntensity()
+{
+	return m_pUI->getBlueIntensity();
+}
+
+GLubyte ImpressionistDoc::clampIntensity(float intensity)
+{
+	if (intensity > 255)
+		return 255;
+	if (intensity < 0)
+		return 0;
+	return static_cast<GLubyte>(intensity);
+}
+
+void ImpressionistDoc::applyIntensity(float red, float green, float blue)
+{
+	for (int i = 0; i < m_nWidth * m_nHeight * 3; i += 3)
+	{
+		m_ucBitmap[i] = clampIntensity(m_ucBitmap[i] * red);
+		m_ucBitmap[i + 1] = clampIntensity(m_ucBitmap[i + 1] * green);
+		m_ucBitmap[i + 2] = clampIntensity(m_ucBitmap[i + 2] * blue);
+	}
+
+	m_pUI->m_origView->refresh();
+	return;
+}
+
 //---------------------------------------------------------
 // Load the specified image
 // This is called by the UI when the load image button is 
@@ -249,4 +286,25 @@ GLubyte* ImpressionistDoc::GetPaintingPixel(int x, int y)
 GLubyte* ImpressionistDoc::GetPaintingPixel(const Point p)
 {
 	return GetPaintingPixel(p.x, p.y);
+}
+
+void ImpressionistDoc::SwapBitmaps()
+{
+	unsigned char* temp = m_ucBitmap;
+	m_ucBitmap = m_ucPainting;
+	m_ucPainting = temp;
+
+	int tempWidth = m_nWidth;
+	m_nWidth = m_nPaintWidth;
+	m_nPaintWidth = tempWidth;
+
+	int tempHeight = m_nHeight;
+	m_nHeight = m_nPaintHeight;
+	m_nPaintHeight = tempHeight;
+
+	m_pUI->m_origView->resizeWindow(m_nWidth, m_nHeight);
+	m_pUI->m_origView->refresh();
+
+	m_pUI->m_paintView->resizeWindow(m_nPaintWidth, m_nPaintHeight);
+	m_pUI->m_paintView->refresh();
 }

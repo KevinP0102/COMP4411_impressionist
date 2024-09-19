@@ -6,9 +6,9 @@ HKUST login(s): kypun
 Delete yes/no when appropriate
 
 W per new brush						yes/no
-W border clipping					yes/no
+W border clipping					yes
 W (red) marker						yes
-W swap							yes/no
+W swap							yes
 B RGB scale						yes/no
 B blur/sharp brush					yes/no
 B 1 level undo						yes/no
