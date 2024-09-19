@@ -1,4 +1,4 @@
-HKUST COMP4411 Fall24 Prject 1 - Impressionist
+HKUST COMP4411 Fall24 Project 1 - Impressionist
 
 ## List of Features
 #### You must add the following features to the Impressionist program:
