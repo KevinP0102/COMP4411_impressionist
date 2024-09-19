@@ -412,6 +412,7 @@ void ImpressionistUI::setOpacity(float opacity)
 		m_OpacitySlider->value(m_nOpacity);
 }
 
+
 // Main menu definition
 Fl_Menu_Item ImpressionistUI::menuitems[] = {
 	{ "&File",		0, 0, 0, FL_SUBMENU },

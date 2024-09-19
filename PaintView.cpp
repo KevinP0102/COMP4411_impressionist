@@ -9,6 +9,7 @@
 #include "impressionistUI.h"
 #include "paintview.h"
 #include "ImpBrush.h"
+#include "OriginalView.h"
 #include <cmath>
 #include <vector>
 
@@ -33,6 +34,7 @@ static Point	startDrag;
 static Point	endDrag;
 static bool		dragging = false;
 static float	dx, dy, angle, gradx, grady;
+static int		X, Y;
 
 PaintView::PaintView(int			x, 
 					 int			y, 
@@ -199,7 +201,9 @@ void PaintView::draw()
 		case LEFT_MOUSE_DOWN:
 			startDrag.x = target.x;
 			startDrag.y = target.y;
-			m_pDoc->m_pCurrentBrush->BrushBegin( source, target );
+			if (target.x >= 0 && target.x < m_pDoc->m_nPaintWidth && 
+				m_nWindowHeight - target.y >= 0 && m_nWindowHeight - target.y < m_pDoc->m_nPaintHeight)
+				m_pDoc->m_pCurrentBrush->BrushBegin( source, target );
 			break;
 		case LEFT_MOUSE_DRAG:
 
@@ -224,8 +228,9 @@ void PaintView::draw()
 
 				m_pDoc->m_pUI->setLineAngle(angle);
 			}
-
-			m_pDoc->m_pCurrentBrush->BrushMove( source, target );
+			if (target.x >= 0 && target.x < m_pDoc->m_nPaintWidth && 
+				m_nWindowHeight - target.y >= 0 && m_nWindowHeight - target.y < m_pDoc->m_nPaintHeight)
+				m_pDoc->m_pCurrentBrush->BrushMove( source, target );
 			break;
 		case LEFT_MOUSE_UP:
 			m_pDoc->m_pCurrentBrush->BrushEnd( source, target );
@@ -298,7 +303,15 @@ int PaintView::handle(int event)
 			eventToDo=LEFT_MOUSE_DRAG;
 		isAnEvent=1;
 		redraw();
+
+	case FL_MOVE:
+		coord.x = Fl::event_x();
+		coord.y = Fl::event_y();
+
+		m_pDoc->m_pUI->m_origView->drawCursor(coord.x, coord.y);
+
 		break;
+	
 	case FL_RELEASE:
 		coord.x = Fl::event_x();
 		coord.y = Fl::event_y();
@@ -309,10 +322,9 @@ int PaintView::handle(int event)
 		isAnEvent=1;
 		redraw();
 		break;
-	case FL_MOVE:
-		coord.x = Fl::event_x();
-		coord.y = Fl::event_y();
-		break;
+
+	
+
 	default:
 		return 0;
 		break;

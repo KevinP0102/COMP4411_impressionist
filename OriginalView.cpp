@@ -12,6 +12,8 @@
 #define min(a, b)	( ( (a)<(b) ) ? (a) : (b) )
 #endif
 
+static Point	coord;
+
 OriginalView::OriginalView(int			x, 
 						   int			y, 
 						   int			w, 
@@ -75,6 +77,11 @@ void OriginalView::draw()
 		glDrawBuffer( GL_BACK );
 		glDrawPixels( drawWidth, drawHeight, GL_RGB, GL_UNSIGNED_BYTE, bitstart );
 
+		glPointSize(5.0f);
+		glBegin(GL_POINTS);
+		glColor3f(1.0, 0.0, 0.0);
+		glVertex2d(coord.x, coord.y);
+		glEnd();
 	}
 			
 	glFlush();
@@ -85,9 +92,15 @@ void OriginalView::refresh()
 	redraw();
 }
 
+void OriginalView::drawCursor(int x, int y)
+{	
+	coord.x = x;
+	coord.y = m_nWindowHeight - y;
+	redraw();
+}
+
 void OriginalView::resizeWindow(int	width, 
 								int	height)
 {
 	resize(x(), y(), width, height);
 }
-

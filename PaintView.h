@@ -13,11 +13,6 @@
 #include <GL/glu.h>
 #include <stdlib.h>
 
-enum MyEnum
-{
-
-};
-
 class ImpressionistDoc;
 
 class PaintView : public Fl_Gl_Window

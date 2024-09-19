@@ -93,6 +93,7 @@ private:
 	static void cb_lineAngleSlides(Fl_Widget* o, void* v);
 	static void cb_opacitySlides(Fl_Widget* o, void* v);
 	static void cb_DirectionChoice(Fl_Widget* o, void* v);
+
 };
 
 #endif

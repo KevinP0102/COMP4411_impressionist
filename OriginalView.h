@@ -28,6 +28,8 @@ public:
 	void draw();
 	void refresh();
 
+	void drawCursor(int x, int y);
+
 	void resizeWindow(int width, int height);
 
 	ImpressionistDoc*	m_pDoc;
