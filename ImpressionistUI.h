@@ -49,6 +49,7 @@ public:
 	Fl_Button*          m_ClearCanvasButton;
 	Fl_Button*			m_ConfirmIntensityButton;
 	Fl_Button*			m_AutoDrawButton;
+	Fl_Light_Button*	m_AnotherGradientButton;
 
 	// Member functions
 	void				setDocument(ImpressionistDoc* doc);
@@ -74,6 +75,8 @@ public:
 	float				getBlueIntensity();
 	void				setBlueIntensity(float blueIntensity);
 
+	bool				getAnotherGradient();
+
 private:
 	ImpressionistDoc*	m_pDoc;		// pointer to document to communicate with the document
 
@@ -86,6 +89,7 @@ private:
 	float   m_nGreenIntensity;
 	float   m_nBlueIntensity;
 	bool	m_bAutoDrawing;
+	bool	m_bAnotherGradient;
 
 	// Static class members
 	static Fl_Menu_Item		menuitems[];
@@ -117,6 +121,10 @@ private:
 	static void cb_confirmIntensityButton(Fl_Widget* o, void* v);
 	static void cb_undo(Fl_Menu_* o, void* v);
 	static void cb_autoDraw(Fl_Widget* o, void* v);
+	static void cb_load_another_image(Fl_Menu_* o, void* v);
+	static void cb_display_original(Fl_Menu_* o, void* v);
+	static void cb_display_another(Fl_Menu_* o, void* v);
+	static void cb_another_gradient(Fl_Widget* o, void* v);
 };
 
 #endif

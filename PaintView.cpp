@@ -59,7 +59,7 @@ void PaintView::convertToGrayscale(GLubyte* src, GLubyte* dst, int width, int he
 	{
 		for (int x = 0; x < width; ++x)
 		{
-			GLubyte* pixel = m_pDoc->GetOriginalPixel(x, y);
+			GLubyte* pixel = m_pDoc->GetPixel(src, x, y, m_pDoc->m_nWidth, m_pDoc->m_nHeight);
 			dst[y * width + x] = static_cast<GLubyte>(0.299 * pixel[0] +
 															0.587 * pixel[1] +
 															0.144 * pixel[2]);
@@ -90,13 +90,13 @@ void PaintView::boxBlurImage(GLubyte* src, GLubyte* dest, int width, int height)
 	}
 }
 
-void PaintView::calculateGradient(const Point& source)
+void PaintView::calculateGradient(GLubyte* src, const Point& source)
 {
 	int x = source.x;
 	int y = source.y;
 	int width = m_pDoc->m_nWidth;
 	int height = m_pDoc->m_nHeight;
-	GLubyte* bitmap = m_pDoc->m_ucBitmap;
+	GLubyte* bitmap = src;
 
 	std::vector<GLubyte> grayscaleBitmap(width * height);
 	convertToGrayscale(bitmap, grayscaleBitmap.data(), width, height);
@@ -225,12 +225,19 @@ void PaintView::draw()
 				startDrag.y = endDrag.y;
 			}
 			else if (m_pDoc->m_pCurrentDirection == GRADIENT) {
-				calculateGradient(source);
+				if (m_pDoc->m_pUI->getAnotherGradient()) {
+					calculateGradient(m_pDoc->m_ucAnotherBitmap, source);
+				}
+				else {
+					calculateGradient(m_pDoc->m_ucBitmap, source);
+				}
+
 				angle = (atan2(grady, gradx) + M_PI/2) * 180.0f / M_PI;
 				if (angle < 0) angle += 360;
 
 				m_pDoc->m_pUI->setLineAngle(angle);
 			}
+
 			if (target.x >= 0 && target.x < m_pDoc->m_nPaintWidth && 
 				m_nWindowHeight - target.y >= 0 && m_nWindowHeight - target.y < m_pDoc->m_nPaintHeight)
 				m_pDoc->m_pCurrentBrush->BrushMove( source, target );
@@ -500,12 +507,22 @@ void PaintView::autoDraw()
 		Point source(x + m_nStartCol, m_nEndRow - y);
 		Point target(x, m_nWindowHeight - y);
 
-		
+		if (m_pDoc->m_pCurrentDirection == GRADIENT) {
+			if (m_pDoc->m_pUI->getAnotherGradient()) {
+				calculateGradient(m_pDoc->m_ucAnotherBitmap, source);
+			}
+			else {
+				calculateGradient(m_pDoc->m_ucBitmap, source);
+			}
+
+			angle = (atan2(grady, gradx) + M_PI / 2) * 180.0f / M_PI;
+			if (angle < 0) angle += 360;
+
+			m_pDoc->m_pUI->setLineAngle(angle);
+		}
 
 		if (frand() > 0.1)
 			m_pDoc->m_pCurrentBrush->BrushBegin(source, target);
-
-	
 	}
 	
 	m_pDoc->m_pUI->setSize(size);

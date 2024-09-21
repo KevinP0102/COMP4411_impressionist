@@ -30,11 +30,13 @@ ImpressionistDoc::ImpressionistDoc()
 {
 	// Set NULL image name as init. 
 	m_imageName[0]	='\0';	
+	m_anotherImageName[0] = '\0';
 
 	m_nWidth		= -1;
 	m_ucBitmap		= NULL;
 	m_ucPainting	= NULL;
 	m_pUndoPainting = NULL;
+	m_ucAnotherBitmap = NULL;
 
 	// create one instance of each brush
 	ImpBrush::c_nBrushCount	= NUM_BRUSH_TYPE;
@@ -58,7 +60,7 @@ ImpressionistDoc::ImpressionistDoc()
 
 	// make one of the brushes current
 	m_pCurrentBrush	= ImpBrush::c_pBrushes[0];
-
+	m_pCurrentDirection = SLIDER;
 }
 
 
@@ -76,6 +78,11 @@ void ImpressionistDoc::setUI(ImpressionistUI* ui)
 char* ImpressionistDoc::getImageName() 
 {
 	return m_imageName;
+}
+
+char* ImpressionistDoc::getAnotherImageName()
+{
+	return m_anotherImageName;
 }
 
 //---------------------------------------------------------
@@ -206,10 +213,40 @@ int ImpressionistDoc::loadImage(char *iname)
 	m_pUI->m_origView->refresh();
 
 	// refresh paint view as well
-	m_pUI->m_paintView->resizeWindow(width, height);	
+	m_pUI->m_paintView->resizeWindow(width, height);
 	m_pUI->m_paintView->refresh();
 
 
+	return 1;
+}
+
+int ImpressionistDoc::loadAnotherImage(char* iname)
+{
+	unsigned char* data;
+	int			   width,
+				   height;
+
+	if ((data = readBMP(iname, width, height)) == NULL)
+	{
+		fl_alert("Can't load bitmap file");
+		return 0;
+	}
+
+	if (m_ucAnotherBitmap)
+	{
+		delete[] m_ucAnotherBitmap;
+	}
+
+	if (width != m_nWidth || height != m_nHeight)
+	{
+		fl_alert("The size of the image is different from the original image.");
+		return 0;
+	} else
+	{
+		m_ucAnotherBitmap = data;
+	}
+
+	m_pUI->m_origView->refresh();
 	return 1;
 }
 
@@ -221,6 +258,11 @@ int ImpressionistDoc::loadImage(char *iname)
 //----------------------------------------------------------------
 int ImpressionistDoc::saveImage(char *iname) 
 {
+	if (m_ucPainting == NULL)
+	{
+		fl_alert("There is no painting to save.");
+		return 0;
+	}
 
 	writeBMP(iname, m_nPaintWidth, m_nPaintHeight, m_ucPainting);
 
@@ -304,6 +346,41 @@ GLubyte* ImpressionistDoc::GetPaintingPixel(int x, int y)
 GLubyte* ImpressionistDoc::GetPaintingPixel(const Point p)
 {
 	return GetPaintingPixel(p.x, p.y);
+}
+
+GLubyte* ImpressionistDoc::GetAnotherPixel(int x, int y)
+{
+	if (x < 0)
+		x = 0;
+	else if (x >= m_nWidth)
+		x = m_nWidth - 1;
+
+	if (y < 0)
+		y = 0;
+	else if (y >= m_nHeight)
+		y = m_nHeight - 1;
+
+	return (GLubyte*)(m_ucAnotherBitmap + 3 * (y * m_nWidth + x));
+}
+
+GLubyte* ImpressionistDoc::GetAnotherPixel(const Point p)
+{
+	return GetAnotherPixel(p.x, p.y);
+}
+
+GLubyte* ImpressionistDoc::GetPixel(GLubyte* src, int x, int y, int width, int height)
+{
+	if (x < 0)
+		x = 0;
+	else if (x >= width)
+		x = width - 1;
+
+	if (y < 0)
+		y = 0;
+	else if (y >= height)
+		y = height - 1;
+
+	return (GLubyte*)(src + 3 * (y * width + x));
 }
 
 void ImpressionistDoc::SwapBitmaps()

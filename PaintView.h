@@ -54,7 +54,7 @@ private:
 			m_nWindowWidth, 
 			m_nWindowHeight;
 
-	void calculateGradient(const Point& source);
+	void calculateGradient(GLubyte* src, const Point& source);
 	void boxBlurImage(GLubyte* src, GLubyte* dest, int width, int height);
 	void convertToGrayscale(GLubyte* src, GLubyte* dest, int width, int height);
 

@@ -183,6 +183,23 @@ void ImpressionistUI::cb_load_image(Fl_Menu_* o, void* v)
 	}
 }
 
+void ImpressionistUI::cb_load_another_image(Fl_Menu_* o, void* v)
+{
+	ImpressionistDoc* pDoc = whoami(o)->getDocument();
+
+	if (pDoc->m_ucBitmap == NULL)
+	{
+		fl_alert("Please load an original image first.");
+		return;
+	}
+
+	char* newfile = fl_file_chooser("Open File?", "*.bmp", pDoc->getAnotherImageName());
+	if (newfile != NULL) {
+		pDoc->loadAnotherImage(newfile);
+	}
+
+}
+
 //------------------------------------------------------------------
 // Brings up a file chooser and then saves the painted image
 // This is called by the UI when the save image menu item is chosen
@@ -402,6 +419,54 @@ void ImpressionistUI::cb_autoDraw(Fl_Widget* o, void* v)
 
 }
 
+void ImpressionistUI::cb_display_original(Fl_Menu_* o, void* v)
+{
+	ImpressionistDoc* pDoc = whoami(o)->getDocument();
+
+	if (pDoc->m_ucBitmap == NULL)
+	{
+		fl_alert("Please load an image first.");
+	}
+	else
+	{
+		pDoc->m_pCurrentImageType = ORIGINAL_IMAGE;
+	}
+
+	whoami(o)->m_origView->refresh();
+}
+
+void ImpressionistUI::cb_display_another(Fl_Menu_* o, void* v)
+{
+	ImpressionistDoc* pDoc = whoami(o)->getDocument();
+
+	if (pDoc->m_ucAnotherBitmap == NULL)
+	{
+		fl_alert("Please load another image first.");
+	}
+	else
+	{
+		pDoc->m_pCurrentImageType = ANOTHER_IMAGE;
+	}
+
+	whoami(o)->m_origView->refresh();
+}
+
+void ImpressionistUI::cb_another_gradient(Fl_Widget* o, void* v)
+{
+	ImpressionistUI* pUI = ((ImpressionistUI*)(o->user_data()));
+	ImpressionistDoc* pDoc = pUI->getDocument();
+
+	if (pDoc->m_ucAnotherBitmap == NULL)
+	{
+		fl_alert("Please load another image first.");
+		pUI->m_AnotherGradientButton->value(0);
+	}
+	else
+	{
+		pUI->m_bAnotherGradient = !pUI->m_bAnotherGradient;
+	}
+}
+
 //---------------------------------- per instance functions --------------------------------------
 
 //------------------------------------------------
@@ -542,6 +607,11 @@ void ImpressionistUI::setBlueIntensity(float blueIntensity)
 		m_BlueIntensitySlider->value(m_nBlueIntensity);
 }
 
+bool ImpressionistUI::getAnotherGradient()
+{
+	return m_bAnotherGradient;
+}
+
 // Main menu definition
 Fl_Menu_Item ImpressionistUI::menuitems[] = {
 	{ "&File",		0, 0, 0, FL_SUBMENU },
@@ -550,8 +620,16 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 		{ "&Brushes...",	FL_ALT + 'b', (Fl_Callback *)ImpressionistUI::cb_brushes }, 
 		{ "&Clear Canvas",	FL_ALT + 'c', (Fl_Callback *)ImpressionistUI::cb_clear_canvas, 0, FL_MENU_DIVIDER },
 		
+		{ "&Load Another Image", FL_ALT + 'a', (Fl_Callback*)ImpressionistUI::cb_load_another_image },
 		{ "&Quit",			FL_ALT + 'q', (Fl_Callback *)ImpressionistUI::cb_exit },
 		{ 0 },
+	
+	{ "&Display",	0, 0, 0, FL_SUBMENU },
+		{ "&Original Image", FL_ALT + 'o', (Fl_Callback*)ImpressionistUI::cb_display_original },
+		//{ "&Edge Image", FL_ALT + 'e', (Fl_Callback*)ImpressionistUI::cb_display_edge },
+		{ "&Another Image", FL_ALT + 'n', (Fl_Callback*)ImpressionistUI::cb_display_another },
+		{ 0 },
+
 
 	{ "&Option",		0, 0, 0, FL_SUBMENU },
 		{ "&Swap Views",	FL_ALT + 'd', (Fl_Callback *)ImpressionistUI::cb_swap },
@@ -624,6 +702,7 @@ ImpressionistUI::ImpressionistUI() {
 	m_nGreenIntensity = 1.0f;
 	m_nBlueIntensity = 1.0f;
 	m_bAutoDrawing = false;
+	m_bAnotherGradient = false;
 
 	// brush dialog definition
 	m_brushDialog = new Fl_Window(400, 325, "Brush Dialog");
@@ -692,6 +771,10 @@ ImpressionistUI::ImpressionistUI() {
 		m_AutoDrawButton = new Fl_Button(320, 300, 70, 20, "&Paint");
 		m_AutoDrawButton->user_data((void*)(this));
 		m_AutoDrawButton->callback(cb_autoDraw);
+
+		m_AnotherGradientButton = new Fl_Light_Button(10, 300, 150, 20, "&Another Gradient");
+		m_AnotherGradientButton->user_data((void*)(this));
+		m_AnotherGradientButton->callback(cb_another_gradient);
 
 		if (m_BrushTypeChoice->value() == BRUSH_LINES || m_BrushTypeChoice->value() == BRUSH_SCATTERED_LINES)
 		{

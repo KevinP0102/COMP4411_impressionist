@@ -10,6 +10,12 @@
 #include "impressionist.h"
 #include "bitmap.h"
 
+enum {
+	ORIGINAL_IMAGE = 0,
+	ANOTHER_IMAGE,
+	NUM_IMAGE_TYPE
+};
+
 class ImpressionistUI;
 
 class ImpressionistDoc 
@@ -20,6 +26,7 @@ public:
 	void	setUI(ImpressionistUI* ui);		// Assign the UI to use
 
 	int		loadImage(char *iname);			// called by the UI to load image
+	int		loadAnotherImage(char* iname);
 	int		saveImage(char *iname);			// called by the UI to save image
 
 
@@ -34,6 +41,7 @@ public:
 	float	getOpacity();					// get the UI opacity
 	void	setOpacity(float opacity);		// set the UI opacity
 	char*	getImageName();					// get the current image name
+	char*	getAnotherImageName();			// get the another image name
 	float	getRedIntensity();				// get the UI red intensity
 	void	setRedIntensity(float redIntensity);	// set the UI red intensity
 	float	getGreenIntensity();			// get the UI green intensity
@@ -58,12 +66,14 @@ public:
 	// Bitmaps for original image and painting.
 	unsigned char*	m_ucBitmap;
 	unsigned char*	m_ucPainting;
+	unsigned char*	m_ucAnotherBitmap;
 
 
 	// The current active brush.
 	ImpBrush*			m_pCurrentBrush;
 
 	int					m_pCurrentDirection;
+	int					m_pCurrentImageType = ORIGINAL_IMAGE;
 	GLubyte*			m_pUndoPainting;
 
 	// Size of the brush.
@@ -80,12 +90,18 @@ public:
 	GLubyte* GetOriginalPixel( const Point p );  
 	GLubyte* GetPaintingPixel(int x, int y);
 	GLubyte* GetPaintingPixel(const Point p);
+	GLubyte* GetAnotherPixel(int x, int y);
+	GLubyte* GetAnotherPixel(const Point p);
+
+	GLubyte* GetPixel(GLubyte* src, int x, int y, int width, int height);
+
 	void SwapBitmaps();
 	void SaveUndoPainting();
 	void RestoreUndoPainting();
 
 private:
 	char			m_imageName[256];
+	char			m_anotherImageName[256];
 
 };
 
