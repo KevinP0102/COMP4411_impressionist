@@ -39,6 +39,7 @@ static bool		dragging = false;
 static float	dx, dy, angle, gradx, grady;
 static int		X, Y;
 
+
 PaintView::PaintView(int			x, 
 					 int			y, 
 					 int			w, 
@@ -94,13 +95,7 @@ void PaintView::calculateGradient(GLubyte* src, const Point& source)
 	int y = source.y;
 	int width = m_pDoc->m_nWidth;
 	int height = m_pDoc->m_nHeight;
-	GLubyte* bitmap = src;
-
-	std::vector<GLubyte> grayscaleBitmap(width * height);
-	convertToGrayscale(bitmap, grayscaleBitmap.data(), width, height);
-
-	std::vector<GLubyte> blurredBitmap(width * height);
-	boxBlurImage(grayscaleBitmap.data(), blurredBitmap.data(), width, height);
+	GLubyte* blurredBitmap = src;
 
 	if (x > 0 && x < width - 1 && y > 0 && y < height - 1)
 	{
@@ -195,6 +190,8 @@ void PaintView::draw()
 		Point source( coord.x + m_nStartCol, m_nEndRow - coord.y );
 		Point target( coord.x, m_nWindowHeight - coord.y );
 		
+		
+
 		// This is the event handler
 		switch (eventToDo) 
 		{
@@ -223,12 +220,18 @@ void PaintView::draw()
 				startDrag.y = endDrag.y;
 			}
 			else if (m_pDoc->m_pCurrentDirection == GRADIENT) {
+				std::vector<GLubyte> grayscaleBitmap(m_nDrawWidth * m_nDrawHeight);
+				std::vector<GLubyte> blurredBitmap(m_nDrawWidth * m_nDrawHeight);
+
 				if (m_pDoc->m_pUI->getAnotherGradient()) {
-					calculateGradient(m_pDoc->m_ucAnotherBitmap, source);
+					convertToGrayscale(m_pDoc->m_ucAnotherBitmap, grayscaleBitmap.data(), m_nDrawWidth, m_nDrawHeight);
 				}
 				else {
-					calculateGradient(m_pDoc->m_ucBitmap, source);
+					convertToGrayscale(m_pDoc->m_ucBitmap, grayscaleBitmap.data(), m_nDrawWidth, m_nDrawHeight);
 				}
+				boxBlurImage(grayscaleBitmap.data(), blurredBitmap.data(), m_nDrawWidth, m_nDrawHeight);
+
+				calculateGradient(blurredBitmap.data(), source);
 
 				angle = (atan2(grady, gradx) + M_PI/2) * 180.0f / M_PI;
 				if (angle < 0) angle += 360;
@@ -476,6 +479,18 @@ void PaintView::autoDraw()
 
 	RandomBrushOrder();
 
+	std::vector<GLubyte> grayscaleBitmap(m_nDrawWidth * m_nDrawHeight);
+	std::vector<GLubyte> blurredBitmap(m_nDrawWidth * m_nDrawHeight);
+
+	if (m_pDoc->m_pUI->getAnotherGradient()) {
+		convertToGrayscale(m_pDoc->m_ucAnotherBitmap, grayscaleBitmap.data(), m_nDrawWidth, m_nDrawHeight);
+	}
+	else {
+		convertToGrayscale(m_pDoc->m_ucBitmap, grayscaleBitmap.data(), m_nDrawWidth, m_nDrawHeight);
+	}
+	
+	boxBlurImage(grayscaleBitmap.data(), blurredBitmap.data(), m_nDrawWidth, m_nDrawHeight);
+
 	int size, lineWidth, lineAngle, randSize, randlineWidth, randlineAngle;
 	size = m_pDoc->getSize();
 	lineWidth = m_pDoc->getLineWidth();
@@ -506,12 +521,8 @@ void PaintView::autoDraw()
 		Point target(x, m_nWindowHeight - y);
 
 		if (m_pDoc->m_pCurrentDirection == GRADIENT) {
-			if (m_pDoc->m_pUI->getAnotherGradient()) {
-				calculateGradient(m_pDoc->m_ucAnotherBitmap, source);
-			}
-			else {
-				calculateGradient(m_pDoc->m_ucBitmap, source);
-			}
+
+			calculateGradient(blurredBitmap.data(), source);
 
 			angle = (atan2(grady, gradx) + M_PI / 2) * 180.0f / M_PI;
 			if (angle < 0) angle += 360;
