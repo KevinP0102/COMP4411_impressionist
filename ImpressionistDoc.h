@@ -49,6 +49,7 @@ public:
 	void	setGreenIntensity(float greenIntensity);	// set the UI green intensity
 	float	getBlueIntensity();				// get the UI blue intensity
 	void	setBlueIntensity(float blueIntensity);	// set the UI blue intensity
+	float	getDissolveFactor();			// get the UI dissolve factor
 
 
 	void	applyIntensity(float red, float green, float blue);
@@ -99,6 +100,7 @@ public:
 	void SwapBitmaps();
 	void SaveUndoPainting();
 	void RestoreUndoPainting();
+	void DissolveImages(float factor);
 
 private:
 	char			m_imageName[256];

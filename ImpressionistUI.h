@@ -46,6 +46,7 @@ public:
 	Fl_Slider*			m_GreenIntensitySlider;
 	Fl_Slider*			m_BlueIntensitySlider;
 	Fl_Slider*			m_OpacitySlider;
+	Fl_Slider*			m_DissolveFactorSlider;
 	Fl_Button*          m_ClearCanvasButton;
 	Fl_Button*			m_ConfirmIntensityButton;
 	Fl_Button*			m_AutoDrawButton;
@@ -74,6 +75,8 @@ public:
 	void				setGreenIntensity(float greenIntensity);
 	float				getBlueIntensity();
 	void				setBlueIntensity(float blueIntensity);
+	float				getDissolveFactor();
+	void				setDissolveFactor(float dissolveFactor);
 
 	bool				getAnotherGradient();
 
@@ -90,6 +93,7 @@ private:
 	float   m_nBlueIntensity;
 	bool	m_bAutoDrawing;
 	bool	m_bAnotherGradient;
+	float   m_nDissolveFactor;
 
 	// Static class members
 	static Fl_Menu_Item		menuitems[];
@@ -117,6 +121,8 @@ private:
 	static void cb_redIntensitySlides(Fl_Widget* o, void* v);
 	static void cb_greenIntensitySlides(Fl_Widget* o, void* v);
 	static void cb_blueIntensitySlides(Fl_Widget* o, void* v);
+	static void cb_dissolveFactorSlides(Fl_Widget* o, void* v);
+
 	static void cb_DirectionChoice(Fl_Widget* o, void* v);
 	static void cb_confirmIntensityButton(Fl_Widget* o, void* v);
 	static void cb_undo(Fl_Menu_* o, void* v);
@@ -126,6 +132,8 @@ private:
 	static void cb_display_another(Fl_Menu_* o, void* v);
 	static void cb_another_gradient(Fl_Widget* o, void* v);
 	static void cb_muralImage(Fl_Menu_* o, void* v);
+	static void cb_dissolve(Fl_Menu_* o, void* v);
+	
 };
 
 #endif

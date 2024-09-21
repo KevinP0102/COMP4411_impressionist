@@ -143,6 +143,11 @@ float ImpressionistDoc::getBlueIntensity()
 	return m_pUI->getBlueIntensity();
 }
 
+float ImpressionistDoc::getDissolveFactor()
+{
+	return m_pUI->getDissolveFactor();
+}
+
 GLubyte ImpressionistDoc::clampIntensity(float intensity)
 {
 	if (intensity > 255)
@@ -463,4 +468,14 @@ void ImpressionistDoc::RestoreUndoPainting()
 	//glDrawPixels(width, height, GL_RGB, GL_UNSIGNED_BYTE, m_ucPainting);
 	//glFlush();
 
+}
+
+void ImpressionistDoc::DissolveImages(float factor)
+{
+	for (int i = 0; i < m_nWidth * m_nHeight * 3; i++)
+	{
+		m_ucPainting[i] = static_cast<GLubyte>(m_ucAnotherBitmap[i] * factor + m_ucPainting[i] * (1 - factor));
+	}
+
+	m_pUI->m_paintView->refresh();
 }

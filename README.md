@@ -27,11 +27,11 @@ Here is a list of suggestions for extending the program. You are encouraged to c
 
    1. [x] ![bell](http://i.imgur.com/HJ7cCdM.gif) Add an undo feature with at least one level of undo so that you can try a brush and decide to undo its effect on the canvas. This comes in very handy for experimenting with brush and filtering effects. 
 
-7. [ ] ![bell](http://i.imgur.com/HJ7cCdM.gif) Add the ability to dissolve one image into another. 
+7. [x] ![bell](http://i.imgur.com/HJ7cCdM.gif) Add the ability to dissolve one image into another. 
 
    1. [ ] ![bell+whistle](http://i.imgur.com/BxHJUfG.gif) A different solution to the problem of not being able to see where you're painting is to show a dimmed version of the painting on the canvas. Add a slider that allows the user to fade in or fade out the original image beneath the user's brush strokes on the canvas. (Beware, this bell and whistle is more difficult than it looks). 
 
-8. [ ] ![bell+whistle](http://i.imgur.com/BxHJUfG.gif) Add a "mural" effect to your Impressionist by implementing the ability to load in different images while preserving what has been drawn on the canvas. Add a "New Mural Image" or "Change Mural Image" to the controls window that allows the user to change images. The user may then load an image, draw in what he / she prefers on the canvas, and then load a different image and continue drawing on the canvas; thus, a "mural" effect. 
+8. [x] ![bell+whistle](http://i.imgur.com/BxHJUfG.gif) Add a "mural" effect to your Impressionist by implementing the ability to load in different images while preserving what has been drawn on the canvas. Add a "New Mural Image" or "Change Mural Image" to the controls window that allows the user to change images. The user may then load an image, draw in what he / she prefers on the canvas, and then load a different image and continue drawing on the canvas; thus, a "mural" effect. 
 
 9. [ ] ![bell+whistle](http://i.imgur.com/BxHJUfG.gif) To make your painting more interesting, add "alpha-mapped" brush strokes. In other words, allow the user to load a bitmap representing a brush stroke. This bitmap would contain an alpha value at each position. Then when this brush is used to draw, a single color would be selected from the image, all pixels in the brush bitmap would be set to this RGB color (without changing the alpha value), and this partially transparent bitmap would be painted on the canvas. A new color would be used each time the brush is drawn. 
 

@@ -216,6 +216,19 @@ void ImpressionistUI::cb_muralImage(Fl_Menu_* o, void* v)
 	}
 }
 
+void ImpressionistUI::cb_dissolve(Fl_Menu_* o, void* v)
+{
+	ImpressionistDoc* pDoc = whoami(o)->getDocument();
+
+	if (pDoc->m_ucBitmap == NULL || pDoc->m_ucAnotherBitmap == NULL)
+	{
+		fl_alert("Please load both images first.");
+		return;
+	}
+
+	pDoc->DissolveImages(pDoc->getDissolveFactor());
+}
+
 //------------------------------------------------------------------
 // Brings up a file chooser and then saves the painted image
 // This is called by the UI when the save image menu item is chosen
@@ -397,6 +410,11 @@ void ImpressionistUI::cb_greenIntensitySlides(Fl_Widget* o, void* v)
 void ImpressionistUI::cb_blueIntensitySlides(Fl_Widget* o, void* v)
 {
 	((ImpressionistUI*)(o->user_data()))->m_nBlueIntensity = float(((Fl_Slider*)o)->value());
+}
+
+void ImpressionistUI::cb_dissolveFactorSlides(Fl_Widget* o, void* v)
+{
+	((ImpressionistUI*)(o->user_data()))->m_nDissolveFactor = float(((Fl_Slider*)o)->value());
 }
 
 void ImpressionistUI::cb_confirmIntensityButton(Fl_Widget* o, void* v)
@@ -628,6 +646,19 @@ bool ImpressionistUI::getAnotherGradient()
 	return m_bAnotherGradient;
 }
 
+float ImpressionistUI::getDissolveFactor()
+{
+	return m_nDissolveFactor;
+}
+
+void ImpressionistUI::setDissolveFactor(float dissolveFactor)
+{
+	m_nDissolveFactor = dissolveFactor;
+
+	if (dissolveFactor <= 1.0f)
+		m_DissolveFactorSlider->value(m_nDissolveFactor);
+}
+
 // Main menu definition
 Fl_Menu_Item ImpressionistUI::menuitems[] = {
 	{ "&File",		0, 0, 0, FL_SUBMENU },
@@ -638,6 +669,7 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 		
 		{ "&Load Another Image", FL_ALT + 'a', (Fl_Callback*)ImpressionistUI::cb_load_another_image },
 		{ "New Mural Image", FL_ALT + 'm', (Fl_Callback*)ImpressionistUI::cb_muralImage},
+		{"&Dissolve", FL_ALT + 'd', (Fl_Callback*)ImpressionistUI::cb_dissolve},
 		{ "&Quit",			FL_ALT + 'q', (Fl_Callback *)ImpressionistUI::cb_exit },
 		{ 0 },
 	
@@ -718,6 +750,7 @@ ImpressionistUI::ImpressionistUI() {
 	m_nRedIntensity = 1.0f;
 	m_nGreenIntensity = 1.0f;
 	m_nBlueIntensity = 1.0f;
+	m_nDissolveFactor = 1.0f;
 	m_bAutoDrawing = false;
 	m_bAnotherGradient = false;
 
@@ -779,11 +812,22 @@ ImpressionistUI::ImpressionistUI() {
 		m_OpacitySlider->type(FL_HOR_NICE_SLIDER);
 		m_OpacitySlider->labelfont(FL_COURIER);
 		m_OpacitySlider->labelsize(12);
-		m_OpacitySlider->bounds(0.00f, 1.00f);
+		m_OpacitySlider->bounds(0.01f, 1.00f);
 		m_OpacitySlider->step(0.01f);
 		m_OpacitySlider->value(m_nOpacity);
 		m_OpacitySlider->align(FL_ALIGN_RIGHT);
 		m_OpacitySlider->callback(cb_opacitySlides);
+
+		m_DissolveFactorSlider = new Fl_Value_Slider(10, 200, 300, 20, "Dissolve");
+		m_DissolveFactorSlider->user_data((void*)(this));	// record self to be used by static callback functions
+		m_DissolveFactorSlider->type(FL_HOR_NICE_SLIDER);
+		m_DissolveFactorSlider->labelfont(FL_COURIER);
+		m_DissolveFactorSlider->labelsize(12);
+		m_DissolveFactorSlider->bounds(0.01f, 1.00f);
+		m_DissolveFactorSlider->step(0.01f);
+		m_DissolveFactorSlider->value(m_nDissolveFactor);
+		m_DissolveFactorSlider->align(FL_ALIGN_RIGHT);
+		m_DissolveFactorSlider->callback(cb_dissolveFactorSlides);
 
 		m_AutoDrawButton = new Fl_Button(320, 300, 70, 20, "&Paint");
 		m_AutoDrawButton->user_data((void*)(this));
