@@ -125,6 +125,7 @@ private:
 	static void cb_display_original(Fl_Menu_* o, void* v);
 	static void cb_display_another(Fl_Menu_* o, void* v);
 	static void cb_another_gradient(Fl_Widget* o, void* v);
+	static void cb_muralImage(Fl_Menu_* o, void* v);
 };
 
 #endif

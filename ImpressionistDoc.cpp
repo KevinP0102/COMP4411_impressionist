@@ -232,19 +232,44 @@ int ImpressionistDoc::loadAnotherImage(char* iname)
 		return 0;
 	}
 
+	if (width != m_nWidth || height != m_nHeight)
+	{
+		fl_alert("The size of the image is different from the original image.");
+		return 0;
+	}
+	
 	if (m_ucAnotherBitmap)
 	{
 		delete[] m_ucAnotherBitmap;
+	}
+	
+	m_ucAnotherBitmap = data;
+	
+	m_pUI->m_origView->refresh();
+	return 1;
+}
+
+int ImpressionistDoc::loadMuralImage(char* iname)
+{
+	unsigned char* data;
+	int			   width,
+		height;
+
+	if ((data = readBMP(iname, width, height)) == NULL)
+	{
+		fl_alert("Can't load bitmap file");
+		return 0;
 	}
 
 	if (width != m_nWidth || height != m_nHeight)
 	{
 		fl_alert("The size of the image is different from the original image.");
 		return 0;
-	} else
-	{
-		m_ucAnotherBitmap = data;
 	}
+
+	if (m_ucBitmap) delete[] m_ucBitmap;
+		
+	m_ucBitmap = data;
 
 	m_pUI->m_origView->refresh();
 	return 1;
