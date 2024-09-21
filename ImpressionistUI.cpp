@@ -389,6 +389,19 @@ void ImpressionistUI::cb_undo(Fl_Menu_* o, void* v)
 	whoami(o)->m_paintView->refresh();
 }
 
+void ImpressionistUI::cb_autoDraw(Fl_Widget* o, void* v)
+{
+	ImpressionistUI* pUI = ((ImpressionistUI*)(o->user_data()));
+	ImpressionistDoc* pDoc = pUI->getDocument();
+
+	pUI->m_bAutoDrawing = true;
+
+	pUI->m_paintView->autoDraw();
+
+	pUI->m_bAutoDrawing = false;
+
+}
+
 //---------------------------------- per instance functions --------------------------------------
 
 //------------------------------------------------
@@ -444,7 +457,7 @@ void ImpressionistUI::setSize( int size )
 {
 	m_nSize=size;
 
-	if (size<=40) 
+	if (size<=40 && !m_bAutoDrawing) 
 		m_BrushSizeSlider->value(m_nSize);
 }
 
@@ -457,7 +470,7 @@ void ImpressionistUI::setLineWidth(int lineWidth)
 {
 	m_nLineWidth = lineWidth;
 
-	if (lineWidth <= 40)
+	if (lineWidth <= 20 && !m_bAutoDrawing)
 		m_LineWidthSlider->value(m_nLineWidth);
 }
 
@@ -470,7 +483,10 @@ void ImpressionistUI::setLineAngle(int lineAngle)
 {
 	m_nLineAngle = lineAngle;
 
-	if (m_pDoc->m_pCurrentDirection != CURSOR && m_pDoc->m_pCurrentDirection != GRADIENT && lineAngle <= 359)
+	if (m_pDoc->m_pCurrentDirection != CURSOR && 
+		m_pDoc->m_pCurrentDirection != GRADIENT &&
+		!m_bAutoDrawing &&
+		lineAngle <= 359)
 		m_LineAngleSlider->value(m_nLineAngle);
 }
 
@@ -607,6 +623,7 @@ ImpressionistUI::ImpressionistUI() {
 	m_nRedIntensity = 1.0f;
 	m_nGreenIntensity = 1.0f;
 	m_nBlueIntensity = 1.0f;
+	m_bAutoDrawing = false;
 
 	// brush dialog definition
 	m_brushDialog = new Fl_Window(400, 325, "Brush Dialog");
@@ -644,7 +661,7 @@ ImpressionistUI::ImpressionistUI() {
 		m_LineWidthSlider->type(FL_HOR_NICE_SLIDER);
 		m_LineWidthSlider->labelfont(FL_COURIER);
 		m_LineWidthSlider->labelsize(12);
-		m_LineWidthSlider->bounds(1, 40);
+		m_LineWidthSlider->bounds(1, 20);
 		m_LineWidthSlider->step(1);
 		m_LineWidthSlider->value(m_nLineWidth);
 		m_LineWidthSlider->align(FL_ALIGN_RIGHT);
@@ -671,6 +688,10 @@ ImpressionistUI::ImpressionistUI() {
 		m_OpacitySlider->value(m_nOpacity);
 		m_OpacitySlider->align(FL_ALIGN_RIGHT);
 		m_OpacitySlider->callback(cb_opacitySlides);
+
+		m_AutoDrawButton = new Fl_Button(320, 300, 70, 20, "&Paint");
+		m_AutoDrawButton->user_data((void*)(this));
+		m_AutoDrawButton->callback(cb_autoDraw);
 
 		if (m_BrushTypeChoice->value() == BRUSH_LINES || m_BrushTypeChoice->value() == BRUSH_SCATTERED_LINES)
 		{

@@ -9,10 +9,15 @@
 #include "impressionistUI.h"
 #include "paintview.h"
 #include "ImpBrush.h"
-#include "OriginalView.h"
+
 #include <cmath>
 #include <vector>
+#include <algorithm>
+#include <random>
+#include <chrono>
+#include <thread>
 
+extern float frand();
 
 #define LEFT_MOUSE_DOWN		1
 #define LEFT_MOUSE_DRAG		2
@@ -137,6 +142,8 @@ void PaintView::draw()
 	// To avoid flicker on some machines.
 	glDrawBuffer(GL_FRONT_AND_BACK);
 	#endif // !MESA
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	if(!valid())
 	{
@@ -145,10 +152,6 @@ void PaintView::draw()
 
 		// We're only using 2-D, so turn off depth 
 		glDisable( GL_DEPTH_TEST );
-
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 
 		ortho();
 
@@ -183,10 +186,9 @@ void PaintView::draw()
 	if ( m_pDoc->m_ucPainting && !isAnEvent) 
 	{
 		RestoreContent();
-
 	}
 
-	if ( m_pDoc->m_ucPainting && isAnEvent) 
+	if ( m_pDoc->m_ucPainting && isAnEvent) //
 	{
 
 		// Clear it after processing.
@@ -329,7 +331,10 @@ int PaintView::handle(int event)
 		redraw();
 		break;
 
-	
+	case FL_LEAVE:
+		m_pDoc->m_pUI->m_origView->drawCursor(-1, -1);
+
+		break;
 
 	default:
 		return 0;
@@ -370,7 +375,6 @@ void PaintView::SaveCurrentContent()
 				  m_pPaintBitstart );
 }
 
-
 void PaintView::RestoreContent()
 {
 	glDrawBuffer(GL_BACK);
@@ -387,4 +391,129 @@ void PaintView::RestoreContent()
 				  m_pPaintBitstart);
 
 //	glDrawBuffer(GL_FRONT);
+}
+
+void PaintView::RandomBrushOrder()
+{
+
+	int sizeArray = m_pDoc->m_nPaintHeight * m_pDoc->m_nPaintWidth;
+
+	order = new int[sizeArray];
+
+	for (int i = 0; i < sizeArray; i++)
+	{
+		order[i] = i;
+	}
+
+	std::random_device rd;
+	std::mt19937 g(rd());
+
+	std::shuffle(order, order + sizeArray, g);
+
+}
+
+void PaintView::autoDraw()
+{
+	make_current();
+
+	if (m_pDoc->m_ucPainting == NULL)
+	{
+		fl_alert("Please load an image first.");
+		return;
+	}
+
+	#ifndef MESA
+	// To avoid flicker on some machines.
+	glDrawBuffer(GL_FRONT_AND_BACK);
+	#endif // !MESA
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	if (!valid())
+	{
+
+		glClearColor(0.7f, 0.7f, 0.7f, 1.0);
+
+		// We're only using 2-D, so turn off depth 
+		glDisable(GL_DEPTH_TEST);
+
+		ortho();
+
+		glClear(GL_COLOR_BUFFER_BIT);
+	}
+
+	Point scrollpos;// = GetScrollPosition();
+	scrollpos.x = 0;
+	scrollpos.y = 0;
+
+	m_nWindowWidth = w();
+	m_nWindowHeight = h();
+
+	int drawWidth, drawHeight;
+	drawWidth = min(m_nWindowWidth, m_pDoc->m_nPaintWidth);
+	drawHeight = min(m_nWindowHeight, m_pDoc->m_nPaintHeight);
+
+	int startrow = m_pDoc->m_nPaintHeight - (scrollpos.y + drawHeight);
+	if (startrow < 0) startrow = 0;
+
+	m_pPaintBitstart = m_pDoc->m_ucPainting +
+		3 * ((m_pDoc->m_nPaintWidth * startrow) + scrollpos.x);
+
+	m_nDrawWidth = drawWidth;
+	m_nDrawHeight = drawHeight;
+
+	m_nStartRow = startrow;
+	m_nEndRow = startrow + drawHeight;
+	m_nStartCol = scrollpos.x;
+	m_nEndCol = m_nStartCol + drawWidth;
+
+	int sizeArray = m_pDoc->m_nPaintHeight * m_pDoc->m_nPaintWidth;
+
+	RandomBrushOrder();
+
+	int size, lineWidth, lineAngle, randSize, randlineWidth, randlineAngle;
+	size = m_pDoc->getSize();
+	lineWidth = m_pDoc->getLineWidth();
+	lineAngle = m_pDoc->getLineAngle();
+
+	for (int i = 0; i < sizeArray; i++)
+	{
+		int x = order[i] % m_pDoc->m_nPaintWidth;
+		int y = order[i] / m_pDoc->m_nPaintWidth;
+
+		randSize = size + frand() * 4 - frand() * 4;
+		randlineWidth = lineWidth + frand() * 4 - frand() * 4;
+		randlineAngle = lineAngle + frand() * 10 - frand() * 10;
+
+		//clamping values
+		if (randSize < 1) randSize = 1;
+		else if (randSize > 40) randSize = 40;
+		if (randlineWidth < 1) randlineWidth = 1;
+		else if (randlineWidth > 20) randlineWidth = 20;
+		if (randlineAngle < 0) randlineAngle = 0;
+		else if (randlineAngle > 359) randlineAngle = 359;
+
+		m_pDoc->m_pUI->setSize(randSize);
+		m_pDoc->m_pUI->setLineWidth(randlineWidth);
+		m_pDoc->m_pUI->setLineAngle(randlineAngle);
+
+		Point source(x + m_nStartCol, m_nEndRow - y);
+		Point target(x, m_nWindowHeight - y);
+
+		
+
+		if (frand() > 0.1)
+			m_pDoc->m_pCurrentBrush->BrushBegin(source, target);
+
+	
+	}
+	
+	m_pDoc->m_pUI->setSize(size);
+	m_pDoc->m_pUI->setLineWidth(lineWidth);
+	m_pDoc->m_pUI->setLineAngle(lineAngle);
+
+	SaveCurrentContent();
+	RestoreContent();
+	glFlush();
+	refresh();
 }

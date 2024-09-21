@@ -41,6 +41,7 @@ public:
 	float	getBlueIntensity();				// get the UI blue intensity
 	void	setBlueIntensity(float blueIntensity);	// set the UI blue intensity
 
+
 	void	applyIntensity(float red, float green, float blue);
 	GLubyte clampIntensity(float intensity);
 
@@ -67,7 +68,6 @@ public:
 
 	// Size of the brush.
 	int m_nSize;							
-
 
 
 	ImpressionistUI*	m_pUI;

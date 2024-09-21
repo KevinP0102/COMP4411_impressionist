@@ -24,6 +24,8 @@
 
 #define DESTROY(p)	{  if ((p)!=NULL) {delete [] p; p=NULL; } }
 
+
+
 ImpressionistDoc::ImpressionistDoc()
 {
 	// Set NULL image name as init. 
@@ -356,8 +358,7 @@ void ImpressionistDoc::RestoreUndoPainting()
 
 	memcpy(m_ucPainting, m_pUndoPainting, width * height * 3);
 
-	// Redraw the painting
-	glDrawPixels(width, height, GL_RGB, GL_UNSIGNED_BYTE, m_ucPainting);
-	glFlush();
+	//glDrawPixels(width, height, GL_RGB, GL_UNSIGNED_BYTE, m_ucPainting);
+	//glFlush();
 
 }

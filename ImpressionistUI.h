@@ -48,6 +48,7 @@ public:
 	Fl_Slider*			m_OpacitySlider;
 	Fl_Button*          m_ClearCanvasButton;
 	Fl_Button*			m_ConfirmIntensityButton;
+	Fl_Button*			m_AutoDrawButton;
 
 	// Member functions
 	void				setDocument(ImpressionistDoc* doc);
@@ -84,6 +85,7 @@ private:
 	float   m_nRedIntensity;
 	float   m_nGreenIntensity;
 	float   m_nBlueIntensity;
+	bool	m_bAutoDrawing;
 
 	// Static class members
 	static Fl_Menu_Item		menuitems[];
@@ -114,6 +116,7 @@ private:
 	static void cb_DirectionChoice(Fl_Widget* o, void* v);
 	static void cb_confirmIntensityButton(Fl_Widget* o, void* v);
 	static void cb_undo(Fl_Menu_* o, void* v);
+	static void cb_autoDraw(Fl_Widget* o, void* v);
 };
 
 #endif

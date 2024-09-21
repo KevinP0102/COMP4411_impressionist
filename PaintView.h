@@ -34,9 +34,14 @@ public:
 
 	void RestoreContent();
 
+	void autoDraw();
+
+	void RandomBrushOrder();
+
 
 
 	ImpressionistDoc *m_pDoc;
+	int* order;
 
 private:
 	GLvoid* m_pPaintBitstart;

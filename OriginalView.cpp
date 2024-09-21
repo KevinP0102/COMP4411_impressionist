@@ -6,6 +6,7 @@
 
 #include "impressionist.h"
 #include "impressionistDoc.h"
+#include "impressionistUI.h"
 #include "originalview.h"
 
 #ifndef WIN32
